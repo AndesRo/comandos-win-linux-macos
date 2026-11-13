@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Soporte TI · Biblioteca de comandos</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#5d6773;--bd:#dde1e6;--ac:#2f6feb;--acx:#fff;--code:#10151c;--codetx:#d6e2f0;--warn:#b45309;--danger:#b42318;--ok:#067647;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1318;--card:#171c23;--tx:#e6eaef;--mu:#9aa5b1;--bd:#2a323c;--ac:#5b93ff;--acx:#0b1220;--code:#0a0d11;--codetx:#cfe0f3;--warn:#f5a524;--danger:#ff7b72;--ok:#4ade80}}
+:root[data-theme="dark"]{--bg:#0f1318;--card:#171c23;--tx:#e6eaef;--mu:#9aa5b1;--bd:#2a323c;--ac:#5b93ff;--acx:#0b1220;--code:#0a0d11;--codetx:#cfe0f3;--warn:#f5a524;--danger:#ff7b72;--ok:#4ade80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:960px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:22px;margin:0 0 2px}
+.sub{color:var(--mu);margin:0 0 16px;font-size:14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab,.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:999px;padding:7px 14px;cursor:pointer;font:inherit;font-size:14px}
+.tab[aria-pressed=true]{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+.chip{padding:4px 11px;font-size:13px;color:var(--mu)}
+.chip[aria-pressed=true]{border-color:var(--ac);color:var(--ac);font-weight:600}
+input,select,textarea{width:100%;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;padding:9px 11px;font:inherit}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
+.meta{color:var(--mu);font-size:13px;margin-bottom:10px}
+.grid{display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.card h3{margin:0;font-size:15px}
+.cat{font-size:12px;color:var(--mu)}
+.badges{display:flex;gap:5px;flex-wrap:wrap}
+.b{font-size:11px;border:1px solid currentColor;border-radius:6px;padding:1px 6px;font-weight:600}
+.b.a{color:var(--warn)}.b.c{color:var(--danger)}.b.p{color:var(--ac)}.b.u{color:var(--ok)}
+.card p{margin:6px 0 10px;color:var(--mu);font-size:14px}
+.cmd{display:flex;gap:8px;align-items:stretch}
+pre{flex:1;margin:0;background:var(--code);color:var(--codetx);border-radius:8px;padding:10px 12px;overflow-x:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}
+.btn{border:1px solid var(--ac);background:var(--ac);color:var(--acx);border-radius:8px;padding:0 14px;cursor:pointer;font:inherit;font-size:13px;font-weight:600;min-width:84px}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.g{background:transparent;color:var(--ac)}
+.btn.x{background:transparent;color:var(--danger);border-color:var(--danger);min-width:0;padding:2px 8px}
+details{margin-top:18px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
+summary{cursor:pointer;font-weight:600}
+.f{display:grid;gap:8px;margin-top:10px;grid-template-columns:1fr 1fr}
+.f .full{grid-column:1/-1}
+.empty{text-align:center;color:var(--mu);padding:30px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.s{opacity:1}
+.note{font-size:12px;color:var(--mu);margin-top:18px}
+@media(max-width:560px){.f{grid-template-columns:1fr}.cmd{flex-direction:column}.btn{padding:9px}}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>Soporte TI · Biblioteca de comandos</h1>
+<p class="sub">Diagnóstico y reparación para Windows (incluye comandos de Win + R), Linux, macOS, Active Directory, Docker y bases de datos. Un clic para copiar y pegar.</p>
+<div class="tabs" id="tabs"></div>
+<input id="q" type="search" placeholder="Buscar por título, comando o descripción…" aria-label="Buscar">
+<div class="chips" id="chips"></div>
+<div class="meta" id="meta"></div>
+<div class="grid" id="list"></div>
+
+<details>
+<summary>+ Agregar mi propio comando</summary>
+<div class="f">
+<select id="nos"><option value="win">Windows</option><option value="lin">Linux</option><option value="mac">macOS</option><option value="ad">Active Directory</option><option value="dk">Docker</option><option value="db">Bases de datos</option><option value="run">Win + R (Ejecutar)</option></select>
+<input id="ncat" placeholder="Categoría (ej. Red)">
+<input id="nti" class="full" placeholder="Título">
+<textarea id="ncm" class="full" rows="2" placeholder="Comando"></textarea>
+<input id="nde" class="full" placeholder="Descripción breve (opcional)">
+<button class="btn full" id="add" style="padding:10px">Guardar comando</button>
+</div>
+<p class="note">Los comandos propios se guardan solo en este navegador.</p>
+</details>
+<p class="note">⚠ Revisa cada comando antes de ejecutarlo. Los marcados “Admin” requieren privilegios elevados y los marcados “Cuidado” pueden borrar datos o reiniciar servicios. Reemplaza valores de ejemplo (usuario, PID, disco, contenedor, base de datos) por los reales y haz un respaldo antes de modificar datos.</p>
+</div>
+<div class="toast" id="toast">Copiado</div>
+
+<script>
+// [categoría, título, comando, descripción, flags: a=admin c=cuidado p=PowerShell]
+var D={
+win:[
+["Red","Configuración IP completa","ipconfig /all","Muestra IP, DNS, gateway, MAC y DHCP de cada adaptador.",""],
+["Red","Vaciar caché DNS","ipconfig /flushdns","Soluciona sitios que no resuelven o apuntan a IP antiguas.",""],
+["Red","Renovar IP (DHCP)","ipconfig /release & ipconfig /renew","Libera y vuelve a pedir una dirección IP al servidor DHCP.","a"],
+["Red","Prueba de conectividad","ping -n 4 8.8.8.8","Verifica salida a internet. Si responde, prueba luego con un nombre (google.com) para aislar DNS.",""],
+["Red","Trazar ruta","tracert 8.8.8.8","Muestra cada salto hasta el destino y dónde se pierde la conexión.",""],
+["Red","Consulta DNS","nslookup google.com","Comprueba si el servidor DNS resuelve nombres.",""],
+["Red","Conexiones y puertos abiertos","netstat -ano","Lista conexiones activas con el PID del proceso asociado.",""],
+["Red","Reiniciar pila de red","netsh winsock reset & netsh int ip reset","Repara problemas de red persistentes. Requiere reiniciar el equipo.","ac"],
+["Sistema","Verificar archivos del sistema","sfc /scannow","Busca y repara archivos protegidos de Windows dañados.","a"],
+["Sistema","Reparar imagen de Windows","DISM /Online /Cleanup-Image /RestoreHealth","Repara el almacén de componentes. Ejecutar antes de sfc si este falla.","a"],
+["Sistema","Información del equipo","systeminfo","Versión de SO, hotfixes, RAM, arranque y red.",""],
+["Sistema","Forzar actualización de GPO","gpupdate /force","Aplica de inmediato las directivas de grupo del dominio.",""],
+["Sistema","Parches instalados","Get-HotFix | Sort-Object InstalledOn -Descending","Lista actualizaciones por fecha; útil tras un fallo posterior a un update.","p"],
+["Sistema","Número de serie (BIOS)","Get-CimInstance Win32_BIOS | Select-Object SerialNumber","Obtiene el serial para garantía o inventario.","p"],
+["Procesos","Listar procesos","tasklist","Muestra procesos con su PID y memoria.",""],
+["Procesos","Terminar proceso por PID","taskkill /PID 1234 /F","Fuerza el cierre de un proceso colgado. Cambia 1234 por el PID real.","c"],
+["Procesos","Top 10 por CPU","Get-Process | Sort-Object CPU -Descending | Select-Object -First 10","Detecta qué proceso satura el procesador.","p"],
+["Disco","Revisar y reparar disco","chkdsk C: /f /r","Busca sectores defectuosos y repara. Pedirá reiniciar si C: está en uso.","ac"],
+["Disco","Estado de discos físicos","Get-PhysicalDisk | Select-Object FriendlyName,HealthStatus,OperationalStatus","Revisa si el disco reporta salud correcta.","p"],
+["Disco","Espacio por unidad","Get-PSDrive -PSProvider FileSystem","Muestra espacio usado y libre por unidad.","p"],
+["Eventos","Últimos errores del sistema","Get-WinEvent -LogName System -MaxEvents 50 | Where-Object LevelDisplayName -eq 'Error'","Revisa errores recientes para encontrar la causa de cuelgues o reinicios.","p"],
+["Energía","Informe de batería","powercfg /batteryreport","Genera un HTML con capacidad de diseño vs. actual y ciclos.",""],
+["Energía","Diagnóstico de energía","powercfg /energy","Analiza 60 s y reporta problemas de consumo y suspensión.","a"],
+["Usuarios","Usuario y privilegios actuales","whoami /all","Muestra SID, grupos y privilegios de la sesión.",""]
+],
+lin:[
+["Red","Direcciones IP","ip a","Interfaces, IP y estado (reemplaza a ifconfig).",""],
+["Red","Tabla de rutas","ip route","Muestra gateway y rutas; útil si no hay salida a internet.",""],
+["Red","Prueba de conectividad","ping -c 4 8.8.8.8","Verifica salida a internet.",""],
+["Red","Puertos en escucha","ss -tulpn","Servicios que escuchan y el proceso asociado.","a"],
+["Red","Consulta DNS","dig google.com +short","Comprueba la resolución de nombres.",""],
+["Red","Estado de DNS","resolvectl status","Servidores DNS por interfaz (systemd-resolved).",""],
+["Red","Reiniciar NetworkManager","sudo systemctl restart NetworkManager","Reinicia la gestión de red; cortará la conexión unos segundos.","ac"],
+["Sistema","Versión del kernel y SO","uname -a && cat /etc/os-release","Identifica kernel y distribución.",""],
+["Sistema","Tiempo activo y carga","uptime","Carga media de 1, 5 y 15 minutos.",""],
+["Sistema","Memoria","free -h","RAM y swap usadas/libres.",""],
+["Sistema","Servicios fallidos","systemctl --failed","Lista unidades systemd que fallaron al iniciar.",""],
+["Sistema","Estado de un servicio","systemctl status nombre-servicio","Estado y últimas líneas de log. Cambia el nombre del servicio.",""],
+["Logs","Errores del arranque actual","journalctl -p err -b","Solo mensajes de error desde el último arranque.",""],
+["Logs","Log reciente con detalle","journalctl -xe","Final del journal con explicaciones; ideal tras un fallo de servicio.","a"],
+["Logs","Errores del kernel","sudo dmesg --level=err,warn","Problemas de hardware, drivers y disco.","a"],
+["Procesos","Top 10 por CPU","ps aux --sort=-%cpu | head -n 11","Procesos que más CPU consumen.",""],
+["Procesos","Terminar proceso por PID","kill -9 1234","Fuerza el cierre. Prueba primero kill 1234. Cambia el PID.","c"],
+["Disco","Espacio por partición","df -h","Uso de cada sistema de archivos.",""],
+["Disco","Carpetas más pesadas","du -sh * 2>/dev/null | sort -rh | head -n 10","Encuentra qué ocupa espacio en el directorio actual.",""],
+["Disco","Dispositivos de bloque","lsblk -f","Discos, particiones, tipo de FS y puntos de montaje.",""],
+["Disco","Salud SMART","sudo smartctl -a /dev/sda","Revisa la salud del disco (requiere smartmontools). Ajusta el dispositivo.","a"],
+["Disco","Reparar sistema de archivos","sudo fsck -f /dev/sdXN","Solo con la partición desmontada. Reemplaza sdXN por la real.","ac"],
+["Paquetes","Actualizar (Debian/Ubuntu)","sudo apt update && sudo apt upgrade -y","Actualiza el índice y los paquetes instalados.","a"],
+["Paquetes","Reparar paquetes rotos","sudo dpkg --configure -a && sudo apt -f install","Termina instalaciones interrumpidas y corrige dependencias.","a"],
+["Permisos","Permisos y usuario","ls -la && id","Revisa propietario, permisos y grupos del usuario actual.",""]
+],
+mac:[
+["Red","Interfaces y direcciones","ifconfig","IP, MAC y estado de cada interfaz.",""],
+["Red","Puertos de hardware","networksetup -listallhardwareports","Lista Wi-Fi, Ethernet y su nombre de dispositivo (enX).",""],
+["Red","Vaciar caché DNS","sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder","Soluciona resolución de nombres defectuosa.","a"],
+["Red","Prueba de conectividad","ping -c 4 8.8.8.8","Verifica salida a internet.",""],
+["Red","Servidores DNS en uso","scutil --dns | grep nameserver","Muestra los DNS configurados.",""],
+["Red","Puertos en escucha","sudo lsof -iTCP -sTCP:LISTEN -n -P","Servicios que escuchan y su proceso.","a"],
+["Red","Red Wi-Fi actual","networksetup -getairportnetwork en0","Nombre de la red Wi-Fi. Ajusta en0 si tu interfaz es otra.",""],
+["Sistema","Resumen de hardware","system_profiler SPHardwareDataType","Modelo, chip, RAM y número de serie.",""],
+["Sistema","Versión de macOS","sw_vers","Nombre, versión y build.",""],
+["Sistema","Actualizaciones disponibles","softwareupdate -l","Lista actualizaciones pendientes de macOS.",""],
+["Sistema","Memoria","vm_stat","Estadísticas de páginas de memoria virtual.",""],
+["Sistema","Top por CPU","top -o cpu -n 10","Procesos que más CPU usan.",""],
+["Logs","Errores de los últimos 10 min","log show --last 10m --predicate 'messageType == error' --style compact","Revisa errores recientes del sistema.",""],
+["Energía","Batería y ciclos","system_profiler SPPowerDataType | grep -E 'Cycle Count|Condition|Maximum Capacity'","Salud de la batería.",""],
+["Energía","Estado de carga","pmset -g batt","Porcentaje, fuente de energía y tiempo estimado.",""],
+["Disco","Listar discos y volúmenes","diskutil list","Particiones y volúmenes APFS.",""],
+["Disco","Verificar volumen","diskutil verifyVolume /","Comprueba la integridad del volumen de arranque.","a"],
+["Disco","Snapshots locales","tmutil listlocalsnapshots /","Muestra snapshots de Time Machine que ocupan espacio.",""],
+["Disco","Espacio por volumen","df -h","Uso de disco por volumen.",""],
+["Rendimiento","Liberar memoria inactiva","sudo purge","Vacía la caché de disco; mejora puntualmente pruebas de rendimiento.","a"],
+["Rendimiento","Reindexar Spotlight","sudo mdutil -E /","Reconstruye el índice cuando la búsqueda falla.","ac"],
+["Seguridad","Estado de SIP","csrutil status","Indica si System Integrity Protection está activo.",""],
+["Seguridad","Estado de Gatekeeper","spctl --status","Indica si la verificación de apps está habilitada.",""],
+["Seguridad","Quitar cuarentena a una app","sudo xattr -cr /Applications/Nombre.app","Solo para apps de origen confiable. Cambia la ruta.","ac"]
+],
+ad:[
+["Usuarios","Estado de una cuenta","Get-ADUser jperez -Properties LockedOut,PasswordExpired,PasswordLastSet,LastLogonDate | Select-Object Name,Enabled,LockedOut,PasswordExpired,PasswordLastSet,LastLogonDate","Primer paso ante un “no puedo iniciar sesión”. Cambia jperez por el usuario.","p"],
+["Usuarios","Cuentas bloqueadas","Search-ADAccount -LockedOut | Select-Object Name,SamAccountName,LastLogonDate","Lista todas las cuentas bloqueadas del dominio.","p"],
+["Usuarios","Desbloquear cuenta","Unlock-ADAccount -Identity jperez","Desbloquea al usuario sin cambiar su contraseña.","ap"],
+["Usuarios","Restablecer contraseña","Set-ADAccountPassword -Identity jperez -Reset -NewPassword (Read-Host -AsSecureString 'Nueva contraseña')","Pide la nueva clave de forma segura. Verifica la identidad del usuario antes.","acp"],
+["Usuarios","Forzar cambio de clave al iniciar","Set-ADUser -Identity jperez -ChangePasswordAtLogon $true","Obliga a cambiar la contraseña en el próximo inicio de sesión.","ap"],
+["Usuarios","Cuentas inactivas (90 días)","Search-ADAccount -AccountInactive -TimeSpan 90.00:00:00 -UsersOnly | Select-Object Name,LastLogonDate","Útil para auditorías y limpieza de cuentas.","p"],
+["Grupos","Miembros de un grupo","Get-ADGroupMember 'Soporte TI' -Recursive | Select-Object Name,SamAccountName","Incluye miembros de grupos anidados.","p"],
+["Grupos","Grupos de un usuario","Get-ADPrincipalGroupMembership jperez | Select-Object Name","Revisa por qué un usuario tiene o no tiene acceso.","p"],
+["Grupos","Agregar usuario a grupo","Add-ADGroupMember -Identity 'Soporte TI' -Members jperez","El usuario debe cerrar e iniciar sesión para recibir el permiso.","ap"],
+["Equipos","Datos de un equipo","Get-ADComputer PC01 -Properties LastLogonDate,OperatingSystem,IPv4Address | Select-Object Name,OperatingSystem,IPv4Address,LastLogonDate","Cambia PC01 por el nombre del equipo.","p"],
+["Equipos","Reparar relación de confianza","Test-ComputerSecureChannel -Repair -Credential (Get-Credential)","Soluciona “la relación de confianza entre esta estación y el dominio falló”. Ejecutar en el equipo afectado.","acp"],
+["Directivas","Resultado de GPO aplicadas","gpresult /r","Muestra las directivas aplicadas al usuario y al equipo.",""],
+["Directivas","Informe HTML de GPO","gpresult /h reporte.html /f","Genera un informe detallado para analizar o adjuntar al ticket.",""],
+["Directorio","Salud del controlador de dominio","dcdiag /v","Diagnóstico completo del DC; revisa DNS, replicación y servicios.","a"],
+["Directorio","Resumen de replicación","repadmin /replsummary","Detecta fallos de replicación entre controladores.","a"],
+["Directorio","Forzar replicación","repadmin /syncall /AdeP","Sincroniza todos los DC. Úsalo con criterio en entornos grandes.","ac"],
+["Directorio","Roles FSMO","netdom query fsmo","Muestra qué servidor tiene cada rol maestro de operaciones.","a"],
+["Directorio","Instalar herramientas RSAT AD","Add-WindowsCapability -Online -Name Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0","Habilita los cmdlets de AD en Windows 10/11.","ap"]
+],
+dk:[
+["Contenedores","Listar contenedores","docker ps -a","Todos los contenedores con su estado, puertos y antigüedad.",""],
+["Contenedores","Logs en vivo","docker logs --tail 100 -f contenedor","Últimas 100 líneas y sigue en vivo. Cambia el nombre.",""],
+["Contenedores","Entrar al contenedor","docker exec -it contenedor sh","Abre una shell dentro del contenedor. Usa bash si existe.",""],
+["Contenedores","Motivo de la caída","docker inspect -f '{{.State.ExitCode}} {{.State.OOMKilled}} {{.State.Error}}' contenedor","Código de salida y si fue terminado por falta de memoria (OOM).",""],
+["Contenedores","Uso de recursos","docker stats --no-stream","CPU, memoria y red por contenedor, en una sola lectura.",""],
+["Contenedores","Reiniciar contenedor","docker restart contenedor","Reinicia el servicio; habrá una breve interrupción.","c"],
+["Contenedores","Copiar archivos desde el contenedor","docker cp contenedor:/ruta/archivo ./archivo","Extrae logs o configuraciones para analizarlos.",""],
+["Compose","Estado de los servicios","docker compose ps","Servicios del proyecto y su estado.",""],
+["Compose","Logs de un servicio","docker compose logs -f --tail=100 servicio","Sigue los logs de un servicio concreto.",""],
+["Compose","Levantar en segundo plano","docker compose up -d","Crea o actualiza los contenedores del proyecto.",""],
+["Compose","Actualizar imágenes","docker compose pull && docker compose up -d","Descarga imágenes nuevas y recrea lo que cambió.","c"],
+["Compose","Bajar el proyecto","docker compose down","Detiene y elimina contenedores y redes. Agregar -v borraría los volúmenes.","c"],
+["Sistema","Información del motor","docker info","Versión, driver de almacenamiento y recursos disponibles.",""],
+["Sistema","Uso de disco de Docker","docker system df","Cuánto ocupan imágenes, contenedores y volúmenes.",""],
+["Sistema","Limpiar recursos sin uso","docker system prune -f","Borra contenedores detenidos, redes y capas huérfanas. No toca volúmenes.","c"],
+["Red","Inspeccionar una red","docker network inspect bridge","Contenedores conectados y su IP. Cambia el nombre de la red.",""],
+["Imágenes","Reconstruir sin caché","docker build --no-cache -t nombre:latest .","Fuerza una construcción limpia cuando algo no se actualiza.",""]
+],
+db:[
+["PostgreSQL","¿Está aceptando conexiones?","pg_isready -h localhost -p 5432","Comprobación rápida de disponibilidad del servidor.",""],
+["PostgreSQL","Conectarse","psql -h localhost -U usuario -d basedatos","Abre la consola interactiva.",""],
+["PostgreSQL","Listar bases de datos","psql -U postgres -c '\\l'","Muestra las bases existentes.",""],
+["PostgreSQL","Consultas activas","SELECT pid,usename,state,now()-query_start AS duracion,left(query,80) FROM pg_stat_activity WHERE state <> 'idle' ORDER BY duracion DESC;","Encuentra consultas lentas o bloqueadas. Ejecutar dentro de psql.",""],
+["PostgreSQL","Terminar una sesión","SELECT pg_terminate_backend(1234);","Cierra la conexión del PID indicado; la transacción se revierte.","c"],
+["PostgreSQL","Tamaño de la base","SELECT pg_size_pretty(pg_database_size('basedatos'));","Espacio que ocupa la base de datos.",""],
+["PostgreSQL","Respaldo","pg_dump -U usuario -Fc basedatos > respaldo.dump","Copia lógica en formato comprimido.",""],
+["PostgreSQL","Restaurar respaldo","pg_restore -U usuario -d basedatos --clean respaldo.dump","--clean elimina objetos existentes antes de recrearlos.","c"],
+["MySQL","Estado del servidor","mysqladmin -u root -p status","Tiempo activo, hilos, consultas lentas y más.",""],
+["MySQL","Procesos en ejecución","mysql -u root -p -e 'SHOW FULL PROCESSLIST;'","Detecta consultas colgadas o muy lentas.",""],
+["MySQL","Estado de InnoDB","mysql -u root -p -e 'SHOW ENGINE INNODB STATUS\\G'","Revisa deadlocks recientes y actividad del motor.",""],
+["MySQL","Tamaño por base de datos","mysql -u root -p -e 'SELECT table_schema, ROUND(SUM(data_length+index_length)/1024/1024,1) AS MB FROM information_schema.tables GROUP BY table_schema;'","Encuentra qué base crece más.",""],
+["MySQL","Respaldo","mysqldump -u root -p --single-transaction basedatos > respaldo.sql","Respaldo consistente de tablas InnoDB sin bloquear.",""],
+["MySQL","Restaurar respaldo","mysql -u root -p basedatos < respaldo.sql","Sobrescribe datos existentes. Verifica la base de destino.","c"],
+["MySQL","Revisar y reparar tablas","mysqlcheck -u root -p --auto-repair --all-databases","Repara tablas dañadas (principalmente MyISAM). Haz respaldo antes.","c"],
+["SQL Server","Versión y conexión","sqlcmd -S servidor -E -Q \"SELECT @@VERSION\"","Valida la conexión con autenticación de Windows.",""],
+["SQL Server","Estado de las bases","sqlcmd -S servidor -E -Q \"SELECT name,state_desc FROM sys.databases\"","Detecta bases sin conexión o en recuperación.",""],
+["SQL Server","Sesiones activas","sqlcmd -S servidor -E -Q \"EXEC sp_who2\"","Quién está conectado y qué sesiones bloquean a otras.",""],
+["SQL Server","Terminar sesión","KILL 55","Cierra la sesión (SPID) indicada. Cambia el número.","c"],
+["SQL Server","Verificar integridad","DBCC CHECKDB ('NombreBD') WITH NO_INFOMSGS;","Busca corrupción. Consume recursos; evitar en horas punta.","a"],
+["SQL Server","Respaldo completo","BACKUP DATABASE [NombreBD] TO DISK = 'C:\\Backups\\NombreBD.bak' WITH COMPRESSION;","Ajusta la ruta y el nombre de la base.","a"],
+["Redis","Prueba de vida","redis-cli ping","Debe responder PONG.",""],
+["Redis","Uso de memoria","redis-cli info memory","Memoria usada, pico y fragmentación.",""]
+],
+run:[
+["Administración","Servicios","services.msc","Inicia, detiene o reinicia servicios y cambia su tipo de inicio.",""],
+["Administración","Visor de eventos","eventvwr.msc","Logs de Windows: busca errores y críticos en Sistema y Aplicación.",""],
+["Administración","Administrador de dispositivos","devmgmt.msc","Revisa drivers, dispositivos con error y actualiza o revierte controladores.",""],
+["Administración","Administración de discos","diskmgmt.msc","Particiones, letras de unidad y estado de los discos.",""],
+["Administración","Administración de equipos","compmgmt.msc","Consola con eventos, servicios, discos, usuarios y carpetas compartidas.",""],
+["Administración","Programador de tareas","taskschd.msc","Tareas programadas; revisa si una tarea falló o está deshabilitada.",""],
+["Administración","Usuarios y grupos locales","lusrmgr.msc","Gestiona cuentas locales. No disponible en Windows Home.",""],
+["Administración","Directiva de grupo local","gpedit.msc","Edita directivas locales. No disponible en Windows Home.","a"],
+["Administración","Directiva de seguridad local","secpol.msc","Contraseñas, auditoría y derechos de usuario. No disponible en Home.","a"],
+["Administración","Firewall avanzado","wf.msc","Reglas de entrada y salida del Firewall de Windows.","a"],
+["Administración","Carpetas compartidas","fsmgmt.msc","Recursos compartidos, sesiones abiertas y archivos en uso.",""],
+["Administración","Certificados del usuario","certmgr.msc","Revisa certificados personales y de confianza.",""],
+["Administración","Usuarios y equipos de AD","dsa.msc","Consola de Active Directory. Requiere RSAT instalado.",""],
+["Administración","Administración de directivas de grupo","gpmc.msc","Consola de GPO del dominio. Requiere RSAT.",""],
+["Administración","Administrador de DNS","dnsmgmt.msc","Zonas y registros DNS. Requiere RSAT o ser servidor DNS.",""],
+["Sistema","Administrador de tareas","taskmgr","CPU, memoria, disco, red y programas de inicio.",""],
+["Sistema","Información del sistema","msinfo32","Hardware, controladores, versión de BIOS y variables de entorno.",""],
+["Sistema","Monitor de recursos","resmon","Qué proceso usa disco, red o memoria en detalle.",""],
+["Sistema","Monitor de confiabilidad","perfmon /rel","Línea de tiempo de fallos de apps y de Windows.",""],
+["Sistema","Monitor de rendimiento","perfmon","Contadores y gráficos de rendimiento en tiempo real.",""],
+["Sistema","Configuración del sistema","msconfig","Arranque selectivo y modo seguro para aislar problemas.","a"],
+["Sistema","Diagnóstico de memoria","mdsched","Prueba la RAM. Reinicia el equipo para ejecutarla.","ac"],
+["Sistema","Propiedades del sistema","sysdm.cpl","Nombre del equipo, dominio, variables de entorno y restauración.",""],
+["Sistema","Editor del registro","regedit","Un cambio incorrecto puede dejar Windows inestable. Exporta la clave antes.","ac"],
+["Sistema","Versión de Windows","winver","Edición, versión y compilación instaladas.",""],
+["Sistema","Diagnóstico DirectX","dxdiag","Información de GPU, pantalla y sonido; guarda un informe para el ticket.",""],
+["Sistema","Liberador de espacio","cleanmgr","Elimina temporales, caché de actualizaciones y papelera.",""],
+["Sistema","Herramienta contra malware","mrt","Herramienta de eliminación de software malintencionado de Microsoft.","a"],
+["Sistema","Consola de comandos","cmd","Con Ctrl+Shift+Enter en el cuadro Ejecutar se abre como administrador.",""],
+["Sistema","PowerShell","powershell","Con Ctrl+Shift+Enter se abre como administrador.",""],
+["Sistema","Cancelar apagado programado","shutdown /a","Cancela un apagado o reinicio programado antes de que ocurra.",""],
+["Red","Conexiones de red","ncpa.cpl","Adaptadores: deshabilitar, habilitar o configurar IP y DNS.",""],
+["Red","Escritorio remoto","mstsc","Conexión RDP a otro equipo.",""],
+["Red","Asistencia remota","msra","Pide o da ayuda remota a un usuario.",""],
+["Red","Acceder a un recurso compartido","\\\\\\\\servidor\\\\carpeta","Abre una carpeta de red. Cambia servidor y carpeta.",""],
+["Red","Opciones de Internet","inetcpl.cpl","Proxy, certificados y seguridad de Internet Explorer y Edge heredado.",""],
+["Red","Firewall de Windows","firewall.cpl","Panel simplificado para activar o desactivar el firewall.",""],
+["Herramientas","Programas y características","appwiz.cpl","Desinstala o repara programas instalados.",""],
+["Herramientas","Características de Windows","optionalfeatures","Activa Hyper-V, .NET, Telnet, WSL y otras funciones.",""],
+["Herramientas","Opciones de energía","powercfg.cpl","Planes de energía y comportamiento de la tapa y suspensión.",""],
+["Herramientas","Cuentas de usuario avanzadas","netplwiz","Administra usuarios y el inicio de sesión automático.",""],
+["Herramientas","Dispositivos e impresoras","control printers","Impresoras instaladas, cola y propiedades.",""],
+["Herramientas","Servidor de impresión","printui /s /t2","Controladores de impresora instalados; útil para quitar drivers dañados.","a"],
+["Herramientas","Sonido","mmsys.cpl","Dispositivos de reproducción y grabación.",""],
+["Herramientas","Panel de control","control","Abre el Panel de control clásico.",""],
+["Herramientas","Herramientas administrativas","control admintools","Acceso rápido a las consolas de administración.",""],
+["Carpetas y ajustes","Archivos temporales del usuario","%temp%","Carpeta de temporales; se puede vaciar para liberar espacio.",""],
+["Carpetas y ajustes","Datos de aplicaciones","%appdata%","Configuración de apps del usuario (Roaming).",""],
+["Carpetas y ajustes","Datos de programas","%programdata%","Datos compartidos de apps para todos los usuarios.",""],
+["Carpetas y ajustes","Programas de inicio del usuario","shell:startup","Accesos directos que se ejecutan al iniciar sesión.",""],
+["Carpetas y ajustes","Programas de inicio de todos","shell:common startup","Inicio para todos los usuarios del equipo.",""],
+["Carpetas y ajustes","Windows Update","ms-settings:windowsupdate","Abre la configuración de actualizaciones.",""],
+["Carpetas y ajustes","Solución de problemas","ms-settings:troubleshoot","Solucionadores automáticos de red, audio, impresora y más.",""],
+["Carpetas y ajustes","Acerca de este equipo","ms-settings:about","Nombre del equipo, especificaciones y versión de Windows.",""]
+]};
+var NAMES={win:"Windows",run:"Win + R",lin:"Linux",mac:"macOS",ad:"Active Directory",dk:"Docker",db:"Bases de datos"};
+var st={os:"win",cat:"Todas",q:""};
+var custom=[];
+try{custom=JSON.parse(localStorage.getItem("soporteti:custom")||"[]")}catch(e){custom=[]}
+function save(){try{localStorage.setItem("soporteti:custom",JSON.stringify(custom))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function all(){
+  var r=D[st.os].map(function(x,i){return{cat:x[0],t:x[1],c:x[2],d:x[3],f:x[4],cu:-1}});
+  custom.forEach(function(x,i){if(x.os===st.os)r.push({cat:x.cat||"Mis comandos",t:x.t,c:x.c,d:x.d||"",f:"u",cu:i})});
+  return r;
+}
+function render(){
+  var tabs=document.getElementById("tabs");
+  tabs.innerHTML=Object.keys(NAMES).map(function(k){return '<button class="tab" data-os="'+k+'" aria-pressed="'+(st.os===k)+'">'+NAMES[k]+'</button>'}).join("");
+  var items=all();
+  var cats=["Todas"];items.forEach(function(x){if(cats.indexOf(x.cat)<0)cats.push(x.cat)});
+  if(cats.indexOf(st.cat)<0)st.cat="Todas";
+  document.getElementById("chips").innerHTML=cats.map(function(c){return '<button class="chip" data-cat="'+esc(c)+'" aria-pressed="'+(st.cat===c)+'">'+esc(c)+'</button>'}).join("");
+  var q=st.q.toLowerCase();
+  var res=items.filter(function(x){return(st.cat==="Todas"||x.cat===st.cat)&&(!q||(x.t+" "+x.c+" "+x.d+" "+x.cat).toLowerCase().indexOf(q)>=0)});
+  document.getElementById("meta").textContent=res.length+" comando"+(res.length===1?"":"s")+" · "+NAMES[st.os];
+  var list=document.getElementById("list");
+  if(!res.length){list.innerHTML='<div class="empty">Sin resultados. Prueba con otra búsqueda o categoría.</div>';return}
+  list.innerHTML=res.map(function(x,i){
+    var b="";
+    if(x.f.indexOf("p")>=0)b+='<span class="b p">PowerShell</span>';
+    if(x.f.indexOf("a")>=0)b+='<span class="b a">Admin</span>';
+    if(x.f.indexOf("c")>=0)b+='<span class="b c">Cuidado</span>';
+    if(x.f.indexOf("u")>=0)b+='<span class="b u">Propio</span>';
+    var del=x.cu>=0?' <button class="btn x" data-del="'+x.cu+'" aria-label="Eliminar">✕</button>':"";
+    return '<div class="card"><div class="top"><div><h3>'+esc(x.t)+'</h3><div class="cat">'+esc(x.cat)+'</div></div><div class="badges">'+b+del+'</div></div>'+(x.d?'<p>'+esc(x.d)+'</p>':'')+'<div class="cmd"><pre>'+esc(x.c)+'</pre><button class="btn" data-copy="'+esc(x.c)+'">Copiar</button></div></div>';
+  }).join("");
+}
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("s");setTimeout(function(){t.classList.remove("s")},1400)}
+function copy(txt,btn){
+  function done(){btn.textContent="¡Copiado!";btn.classList.add("ok");toast("Comando copiado");setTimeout(function(){btn.textContent="Copiar";btn.classList.remove("ok")},1500)}
+  function fb(){var a=document.createElement("textarea");a.value=txt;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(e){toast("No se pudo copiar")}document.body.removeChild(a)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,fb)}else fb();
+}
+document.addEventListener("click",function(e){
+  var t=e.target;
+  if(t.dataset.os){st.os=t.dataset.os;st.cat="Todas";render()}
+  else if(t.dataset.cat){st.cat=t.dataset.cat;render()}
+  else if(t.dataset.copy!==undefined){copy(t.dataset.copy,t)}
+  else if(t.dataset.del!==undefined){custom.splice(+t.dataset.del,1);save();render()}
+});
+document.getElementById("q").addEventListener("input",function(e){st.q=e.target.value;render()});
+document.getElementById("add").addEventListener("click",function(){
+  var c=document.getElementById("ncm").value.trim(),ti=document.getElementById("nti").value.trim();
+  if(!c||!ti){toast("Falta título o comando");return}
+  var os=document.getElementById("nos").value;
+  custom.push({os:os,cat:document.getElementById("ncat").value.trim(),t:ti,c:c,d:document.getElementById("nde").value.trim()});
+  save();st.os=os;st.cat="Todas";
+  ["ncat","nti","ncm","nde"].forEach(function(id){document.getElementById(id).value=""});
+  render();toast("Comando guardado");
+});
+render();
+</script>
+</body>
+</html>
